@@ -10,7 +10,12 @@ const SPLASH_SUBTITLES = [
 
 const SUBTITLE_INTERVAL_MS = 800
 
-export function SplashScreen() {
+export interface SplashScreenProps {
+  /** If provided, called after splash delay instead of navigating. Used when splash is shown as gate on every load. */
+  onComplete?: () => void
+}
+
+export function SplashScreen({ onComplete }: SplashScreenProps = {}) {
   const navigate = useNavigate()
   const [isVisible, setIsVisible] = useState(false)
   const [subtitleIndex, setSubtitleIndex] = useState(0)
@@ -19,11 +24,15 @@ export function SplashScreen() {
     setIsVisible(true)
 
     const timer = setTimeout(() => {
-      navigate(ROUTES.main, { replace: true })
+      if (onComplete) {
+        onComplete()
+      } else {
+        navigate(ROUTES.main, { replace: true })
+      }
     }, 2500)
 
     return () => clearTimeout(timer)
-  }, [navigate])
+  }, [navigate, onComplete])
 
   useEffect(() => {
     const id = setInterval(() => {
