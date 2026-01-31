@@ -1,6 +1,6 @@
 import { useRef, ReactNode } from 'react'
 
-type ButtonVariant = 'primary' | 'secondary' | 'close'
+type ButtonVariant = 'primary' | 'secondary' | 'close' | 'cta'
 
 interface NativeButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,6 +14,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-[#A4E973] text-black',
   secondary: 'bg-gray-200 text-black',
   close: 'text-gray-500 hover:text-gray-700',
+  cta: 'bg-[#26222F] text-white',
 }
 
 export function NativeButton({
@@ -26,7 +27,7 @@ export function NativeButton({
 }: NativeButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null)
 
-  const handlePressStart = (e: React.TouchEvent | React.MouseEvent) => {
+  const handlePressStart = (_e: React.TouchEvent | React.MouseEvent) => {
     if (!buttonRef.current || props.disabled) return
     // Мгновенное применение без transition - как в iOS
     buttonRef.current.style.transition = 'none'
@@ -34,7 +35,7 @@ export function NativeButton({
     buttonRef.current.style.opacity = '0.8'
   }
 
-  const handlePressEnd = (e: React.TouchEvent | React.MouseEvent) => {
+  const handlePressEnd = (_e: React.TouchEvent | React.MouseEvent) => {
     if (!buttonRef.current || props.disabled) return
     // Плавный возврат с spring-like анимацией (iOS стиль)
     buttonRef.current.style.transition =

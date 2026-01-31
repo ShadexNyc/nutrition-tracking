@@ -7,4 +7,5 @@
 // export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Временная заглушка - будет заменена на реальный клиент позже
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const supabase = null as any

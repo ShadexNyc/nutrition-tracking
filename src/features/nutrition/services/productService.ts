@@ -12,7 +12,7 @@ export const productService = {
     return newProduct
   },
 
-  async getById(id: string): Promise<Product | null> {
+  async getById(_id: string): Promise<Product | null> {
     // Временная реализация - будет заменена на Supabase позже
     return null
   },
