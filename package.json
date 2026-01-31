@@ -3,6 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "overrides": {
+    "eslint": "^9.15.0",
+    "glob": "^11.0.0",
+    "rimraf": "^5.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
