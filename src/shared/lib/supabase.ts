@@ -1,11 +1,29 @@
-// Supabase клиент (пока не используется, будет подключен позже)
-// import { createClient } from '@supabase/supabase-js'
+/**
+ * Supabase client factory.
+ * Creates client only when env vars are set; avoids exposing keys or broken client.
+ */
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? ''
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? ''
 
-// export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+function isNonEmptyString(s: unknown): s is string {
+  return typeof s === 'string' && s.trim().length > 0
+}
 
-// Временная заглушка - будет заменена на реальный клиент позже
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const supabase = null as any
+/** Returns Supabase client or null if env is not configured. Never throws. */
+export function getSupabaseClient(): SupabaseClient | null {
+  if (!isNonEmptyString(SUPABASE_URL) || !isNonEmptyString(SUPABASE_ANON_KEY)) {
+    return null
+  }
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+}
+
+/** Singleton client for app use. Lazy-created once env is available. */
+let clientInstance: SupabaseClient | null | undefined
+export function getSupabase(): SupabaseClient | null {
+  if (clientInstance === undefined) {
+    clientInstance = getSupabaseClient()
+  }
+  return clientInstance
+}

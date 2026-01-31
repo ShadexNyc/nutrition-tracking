@@ -36,7 +36,7 @@ export function MainScreen() {
         totalCalories: 0,
         protein: { current: 0, target: 143 },
         carbs: { current: 0, target: 160 },
-        fat: { current: 0, target: 70 },
+        fat: { current: 0, target: 90 },
       },
     [dailyNutrition]
   )

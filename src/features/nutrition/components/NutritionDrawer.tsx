@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { toUserMessage } from '@/shared/utils/errorHandler'
 import { NutritionForm, NutritionFormData } from './NutritionForm'
 import { nutritionService } from '../services/nutritionService'
 import { useNutritionStore } from '../store/nutritionStore'
@@ -131,11 +132,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
       onClose()
     } catch (error) {
       console.error('Error adding nutrition entry:', error)
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Ошибка при добавлении записи. Попробуйте еще раз.'
-      alert(errorMessage)
+      alert(toUserMessage(error))
     } finally {
       setIsSubmitting(false)
     }

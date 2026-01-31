@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { toUserMessage } from '@/shared/utils/errorHandler'
 import { DailyNutrition } from '../types'
 import { nutritionService } from '../services/nutritionService'
 
@@ -27,12 +28,8 @@ export const useNutritionStore = create<NutritionState>((set, get) => ({
       const nutrition = await nutritionService.calculateDailyNutrition(targetDate)
       set({ dailyNutrition: nutrition, isLoading: false })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Не удалось загрузить данные о питании'
       set({
-        error: errorMessage,
+        error: toUserMessage(error),
         isLoading: false,
       })
     }
