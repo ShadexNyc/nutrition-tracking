@@ -19,6 +19,13 @@
     min-height: 100vh;
     min-height: 100dvh;
   }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #26222F;
+  }
 }
 
 @layer utilities {

@@ -58,9 +58,27 @@ function SectionEntries({ entries }: { entries: NutritionEntry[] }) {
   )
 }
 
+const EMPTY_STATE_LINES = [
+  'Your diet will be displayed here',
+  'in the morning, day, and evening',
+]
+
 export function DailyMealsList({ entries }: DailyMealsListProps) {
+  const hasAnyEntries = Boolean(entries?.length)
   const byMeal = (type: MealType) =>
     (entries ?? []).filter((e) => (e.meal_type ?? 'breakfast') === type)
+
+  if (!hasAnyEntries) {
+    return (
+      <div className="flex flex-1 flex-col min-h-0 items-center justify-center text-center px-4">
+        <p className="text-base leading-relaxed">
+          <span style={{ color: '#26222F' }}>{EMPTY_STATE_LINES[0]}</span>
+          <br />
+          <span style={{ color: '#757575' }}>{EMPTY_STATE_LINES[1]}</span>
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">

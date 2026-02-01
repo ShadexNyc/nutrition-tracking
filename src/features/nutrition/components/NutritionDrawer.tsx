@@ -14,10 +14,12 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const drawerRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLDivElement>(null)
   const startYRef = useRef<number>(0)
   const currentYRef = useRef<number>(0)
   const isDraggingRef = useRef<boolean>(false)
+
+  /** Высота зоны сверху шторки (px), с которой можно начать свайп вниз */
+  const SWIPE_TOP_ZONE_HEIGHT = 100
 
   useEffect(() => {
     if (isOpen) {
@@ -35,19 +37,18 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
     }
   }, [isOpen])
 
-  // Обработка свайпа вниз для закрытия с использованием addEventListener
+  // Обработка свайпа вниз для закрытия — зона захвата: верхние SWIPE_TOP_ZONE_HEIGHT px шторки
   useEffect(() => {
     const drawer = drawerRef.current
-    const header = headerRef.current
-    if (!drawer || !header || !isOpen) return
+    if (!drawer || !isOpen) return
 
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0]
-      const target = e.target as HTMLElement
-      
-      // Разрешаем свайп только если начинаем с верхней части (индикатор или заголовок)
-      const isTopArea = target.closest('.drawer-header') !== null
-      if (!isTopArea) return
+      const rect = drawer.getBoundingClientRect()
+      const isInTopZone =
+        touch.clientY >= rect.top &&
+        touch.clientY <= rect.top + SWIPE_TOP_ZONE_HEIGHT
+      if (!isInTopZone) return
 
       startYRef.current = touch.clientY
       currentYRef.current = touch.clientY
@@ -68,7 +69,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
         // Затемняем overlay при свайпе
         const overlay = document.querySelector('[data-drawer-overlay]') as HTMLElement
         if (overlay) {
-          const opacity = Math.max(0, 0.5 - deltaY / 400)
+          const opacity = Math.max(0, 1 - deltaY / 400)
           overlay.style.opacity = opacity.toString()
         }
         e.preventDefault()
@@ -91,7 +92,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
         const overlay = document.querySelector('[data-drawer-overlay]') as HTMLElement
         if (overlay) {
           overlay.style.transition = 'opacity 0.3s'
-          overlay.style.opacity = '0.5'
+          overlay.style.opacity = '1'
         }
       }
 
@@ -100,13 +101,12 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
       currentYRef.current = 0
     }
 
-    // Добавляем обработчики с { passive: false } для возможности preventDefault
-    header.addEventListener('touchstart', handleTouchStart, { passive: false })
+    drawer.addEventListener('touchstart', handleTouchStart, { passive: false })
     drawer.addEventListener('touchmove', handleTouchMove, { passive: false })
     drawer.addEventListener('touchend', handleTouchEnd, { passive: false })
 
     return () => {
-      header.removeEventListener('touchstart', handleTouchStart)
+      drawer.removeEventListener('touchstart', handleTouchStart)
       drawer.removeEventListener('touchmove', handleTouchMove)
       drawer.removeEventListener('touchend', handleTouchEnd)
     }
@@ -142,11 +142,11 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay с размытием фона */}
       <div
         data-drawer-overlay
-        className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
-          isVisible ? 'opacity-50' : 'opacity-0'
+        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 backdrop-blur-sm ${
+          isVisible ? 'opacity-100' : 'opacity-0'
         }`}
         style={{ willChange: 'opacity' }}
       />
@@ -164,14 +164,14 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
           willChange: 'transform',
         }}
       >
-        {/* Индикатор для свайпа и заголовок - область для свайпа */}
-        <div ref={headerRef} className="drawer-header">
+        {/* Верхняя зона шторки: индикатор и заголовок (зона свайпа — первые 100px) */}
+        <div className="drawer-header">
           <div className="flex justify-center mb-4 pt-0 md:hidden">
             <div className="w-12 h-1 bg-gray-300 rounded-full" />
           </div>
 
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-black">Добавить питание</h2>
+            <h2 className="text-xl font-semibold text-black">Add nutrition</h2>
           </div>
         </div>
 
