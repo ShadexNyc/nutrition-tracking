@@ -9,17 +9,10 @@ import { DailyMealsList } from './DailyMealsList'
 import { getMacronutrientData } from '../utils/calculations'
 import { NativeButton } from '@/shared/components/NativeButton'
 import { PersonIcon } from '@/shared/components/icons/PersonIcon'
-import {
-  AddToHomeScreenDrawer,
-  wasAddToHomeScreenDismissed,
-} from '@/shared/components/AddToHomeScreenDrawer'
 
 export function MainScreen() {
   const { dailyNutrition, isLoading, error, loadDailyNutrition } = useNutritionStore()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [showAddToHomeDrawer, setShowAddToHomeDrawer] = useState(() =>
-    !wasAddToHomeScreenDismissed()
-  )
 
   useEffect(() => {
     loadDailyNutrition()
@@ -110,10 +103,6 @@ export function MainScreen() {
       </div>
 
       <NutritionDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
-      <AddToHomeScreenDrawer
-        isOpen={showAddToHomeDrawer}
-        onClose={() => setShowAddToHomeDrawer(false)}
-      />
     </div>
   )
 }
