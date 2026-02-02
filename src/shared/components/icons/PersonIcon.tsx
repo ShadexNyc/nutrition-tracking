@@ -3,12 +3,14 @@
  */
 interface PersonIconProps {
   className?: string
+  style?: React.CSSProperties
 }
 
-export function PersonIcon({ className = 'w-5 h-5' }: PersonIconProps) {
+export function PersonIcon({ className = 'w-5 h-5', style }: PersonIconProps) {
   return (
     <svg
       className={className}
+      style={style}
       width="31"
       height="29"
       viewBox="0 0 31 29"
