@@ -45,7 +45,7 @@ export function MainScreen() {
 
   if (isLoading && !dailyNutrition) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E6E0E9' }}>
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-lg" style={{ color: '#26222F' }}>Загрузка...</div>
       </div>
     )
@@ -53,10 +53,7 @@ export function MainScreen() {
 
   if (error && !dailyNutrition) {
     return (
-      <div
-        className="min-h-screen flex flex-col items-center justify-center px-6"
-        style={{ backgroundColor: '#E6E0E9' }}
-      >
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-white">
         <div className="text-lg text-red-500 mb-4 text-center">{error}</div>
         <NativeButton
           onClick={handleRetry}
@@ -70,15 +67,13 @@ export function MainScreen() {
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col pt-0 pb-20 safe-area-bottom"
-      style={{ backgroundColor: '#E6E0E9' }}
-    >
-      <div className="max-w-md mx-auto flex flex-1 flex-col min-h-0 w-full" style={{ gap: 4 }}>
-        {/* Верхний остров */}
-        <div
-          className="rounded-t-none rounded-b-[24px] bg-white p-4 sm:p-6 pt-16 shrink-0"
-        >
+    <div className="min-h-screen flex flex-col pt-0 pb-20 safe-area-bottom bg-white w-full min-w-0 overflow-x-hidden">
+      <div
+        className="max-w-md mx-auto flex flex-1 flex-col min-h-0 w-full rounded-[24px] overflow-hidden gap-1"
+        style={{ backgroundColor: '#E6E0E9' }}
+      >
+        {/* Верхняя секция */}
+        <div className="rounded-t-none rounded-b-[24px] bg-white p-4 sm:p-6 pt-16 shrink-0">
           <TotalCalories calories={nutrition.totalCalories} />
           <div className="grid grid-cols-3 gap-x-0 gap-y-4 mt-6 mb-6 mx-0 items-stretch h-fit">
             {macronutrients.map((macro) => (
@@ -88,10 +83,8 @@ export function MainScreen() {
           <WeekCalendar />
         </div>
 
-        {/* Нижний остров */}
-        <div
-          className="rounded-t-[24px] bg-white flex flex-1 flex-col min-h-0 p-4 sm:p-6 gap-6 overflow-y-auto"
-        >
+        {/* Нижняя секция */}
+        <div className="rounded-t-[24px] bg-white flex flex-1 flex-col min-h-0 p-4 sm:p-6 gap-6 overflow-y-auto">
           <div className="flex flex-1 flex-col min-h-0">
             <DailyMealsList entries={dailyNutrition?.entries} />
           </div>

@@ -3,8 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   body {
-    background-color: #E6E0E9;
+    background-color: #fff;
     color: #26222F;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -13,11 +20,18 @@
     padding: 0;
     overflow-x: hidden;
     touch-action: manipulation;
+    width: 100%;
+    min-width: 0;
   }
 
   #root {
     min-height: 100vh;
     min-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
   }
 
   input:focus,
