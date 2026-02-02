@@ -84,7 +84,7 @@ export function MainScreen() {
         </div>
 
         {/* Нижняя секция */}
-        <div className="rounded-t-[24px] bg-white flex flex-1 flex-col min-h-0 p-4 sm:p-6 gap-6 overflow-y-auto">
+        <div className="rounded-t-[24px] bg-white flex flex-1 flex-col min-h-0 p-4 sm:p-6 pb-[24px] gap-6 overflow-y-auto">
           <div className="flex flex-1 flex-col min-h-0">
             <DailyMealsList entries={dailyNutrition?.entries} />
           </div>

@@ -57,12 +57,12 @@ export const WeekCalendar = memo(function WeekCalendar() {
             }`}
             style={{
               backgroundColor: day.isToday ? '#D3C1FF' : undefined,
-              boxShadow: isSelected ? 'inset 0 0 0 1px #A385EC' : undefined,
-              color: '#26222F',
+              boxShadow: isSelected ? 'inset 0 0 0 1px #9676E5' : undefined,
+              color: isSelected && !day.isToday ? '#9676E5' : day.isToday ? '#26222F' : '#919191',
             }}
           >
-            <span className="text-[12px] font-normal leading-tight" style={{ color: isSelected || day.isToday ? '#26222F' : '#919191' }}>{day.label}</span>
-            <span className="text-[16px] font-normal leading-tight">{day.num}</span>
+            <span className="text-[12px] font-normal leading-tight" style={{ color: isSelected && !day.isToday ? '#9676E5' : day.isToday ? '#26222F' : '#919191' }}>{day.label}</span>
+            <span className="text-[16px] font-normal leading-tight" style={{ color: isSelected && !day.isToday ? '#9676E5' : day.isToday ? '#26222F' : '#919191' }}>{day.num}</span>
           </button>
         )
       })}

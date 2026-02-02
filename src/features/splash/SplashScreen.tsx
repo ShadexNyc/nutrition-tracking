@@ -8,7 +8,7 @@ const SPLASH_SUBTITLES = [
   'Burned a couple of extra numbers',
 ] as const
 
-const SUBTITLE_INTERVAL_MS = 800
+const SUBTITLE_INTERVAL_MS = 400
 
 export interface SplashScreenProps {
   /** If provided, called after splash delay instead of navigating. Used when splash is shown as gate on every load. */
@@ -29,7 +29,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps = {}) {
       } else {
         navigate(ROUTES.main, { replace: true })
       }
-    }, 2500)
+    }, 1200)
 
     return () => clearTimeout(timer)
   }, [navigate, onComplete])
