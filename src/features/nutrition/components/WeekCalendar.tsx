@@ -62,7 +62,7 @@ export const WeekCalendar = memo(function WeekCalendar() {
             }}
           >
             <span className="text-[12px] font-normal leading-tight" style={{ color: isSelected && !day.isToday ? '#9676E5' : day.isToday ? '#26222F' : '#919191' }}>{day.label}</span>
-            <span className="text-[16px] font-normal leading-tight" style={{ color: isSelected && !day.isToday ? '#9676E5' : day.isToday ? '#26222F' : '#919191' }}>{day.num}</span>
+            <span className="text-[16px] font-normal leading-tight" style={{ color: isSelected && !day.isToday ? '#9676E5' : day.isToday ? '#26222F' : 'rgba(38, 34, 47, 1)' }}>{day.num}</span>
           </button>
         )
       })}

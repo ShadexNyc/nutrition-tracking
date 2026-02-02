@@ -8,10 +8,18 @@ import { NutritionDrawer } from './NutritionDrawer'
 import { DailyMealsList } from './DailyMealsList'
 import { getMacronutrientData } from '../utils/calculations'
 import { NativeButton } from '@/shared/components/NativeButton'
+import { PersonIcon } from '@/shared/components/icons/PersonIcon'
+import {
+  AddToHomeScreenDrawer,
+  wasAddToHomeScreenDismissed,
+} from '@/shared/components/AddToHomeScreenDrawer'
 
 export function MainScreen() {
   const { dailyNutrition, isLoading, error, loadDailyNutrition } = useNutritionStore()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [showAddToHomeDrawer, setShowAddToHomeDrawer] = useState(() =>
+    !wasAddToHomeScreenDismissed()
+  )
 
   useEffect(() => {
     loadDailyNutrition()
@@ -74,7 +82,16 @@ export function MainScreen() {
       >
         {/* Верхняя секция */}
         <div className="rounded-t-none rounded-b-[24px] bg-white p-4 sm:p-6 pt-16 shrink-0">
-          <TotalCalories calories={nutrition.totalCalories} />
+          <div className="relative">
+            <TotalCalories calories={nutrition.totalCalories} />
+            <div
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-[44px] h-[44px] rounded-full flex items-center justify-center shrink-0 overflow-hidden"
+              style={{ backgroundColor: '#f4f1f4' }}
+              aria-hidden
+            >
+              <PersonIcon className="w-[44px] h-[30px] pt-0 -mb-[7px]" style={{ color: '#757575' }} />
+            </div>
+          </div>
           <div className="grid grid-cols-3 gap-x-0 gap-y-4 mt-6 mb-6 mx-0 items-stretch h-fit">
             {macronutrients.map((macro) => (
               <MacronutrientCard key={macro.label} data={macro} />
@@ -93,6 +110,10 @@ export function MainScreen() {
       </div>
 
       <NutritionDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
+      <AddToHomeScreenDrawer
+        isOpen={showAddToHomeDrawer}
+        onClose={() => setShowAddToHomeDrawer(false)}
+      />
     </div>
   )
 }
