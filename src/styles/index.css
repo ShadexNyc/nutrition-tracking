@@ -43,6 +43,14 @@
 }
 
 @layer utilities {
+  .pt-16 {
+    padding-top: 1rem;
+  }
+
+  .top-1\/2 {
+    top: 55%;
+  }
+
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }

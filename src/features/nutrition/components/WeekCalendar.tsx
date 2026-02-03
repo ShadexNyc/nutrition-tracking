@@ -1,7 +1,8 @@
 import { memo, useMemo, useCallback } from 'react'
 import { useNutritionStore } from '../store/nutritionStore'
 
-const DAY_LABELS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+/** Дни недели с понедельника (Mon … Sun). */
+const DAY_LABELS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 function formatDateKey(d: Date): string {
   const y = d.getFullYear()
@@ -10,14 +11,20 @@ function formatDateKey(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
+/** Дней от понедельника: Пн=0, Вт=1, …, Вс=6 (getDay: Вс=0, Пн=1, …). */
+function daysFromMonday(date: Date): number {
+  const d = date.getDay()
+  return d === 0 ? 6 : d - 1
+}
+
 export const WeekCalendar = memo(function WeekCalendar() {
   const { selectedDate, loadDailyNutrition } = useNutritionStore()
 
   const { days } = useMemo(() => {
     const today = new Date()
-    const dayOfWeek = today.getDay()
+    const offset = daysFromMonday(today)
     const start = new Date(today)
-    start.setDate(today.getDate() - dayOfWeek)
+    start.setDate(today.getDate() - offset)
     const days: { date: Date; dateKey: string; label: string; num: number; isToday: boolean }[] = []
     for (let i = 0; i < 7; i++) {
       const d = new Date(start)
@@ -25,7 +32,7 @@ export const WeekCalendar = memo(function WeekCalendar() {
       days.push({
         date: d,
         dateKey: formatDateKey(d),
-        label: DAY_LABELS_SHORT[d.getDay()],
+        label: DAY_LABELS_SHORT[i],
         num: d.getDate(),
         isToday:
           d.getDate() === today.getDate() &&

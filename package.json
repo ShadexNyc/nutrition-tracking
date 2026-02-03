@@ -5,8 +5,10 @@
   "type": "module",
   "overrides": {
     "eslint": "^9.15.0",
-    "glob": "^11.0.0",
-    "rimraf": "^5.0.0"
+    "glob": "^13.0.0",
+    "rimraf": "^5.0.0",
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.0",
+    "source-map": "^0.7.4"
   },
   "scripts": {
     "dev": "vite",
@@ -39,6 +41,7 @@
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.9",
     "typescript": "^5.5.3",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vite-plugin-pwa": "^1.2.0"
   }
 }
