@@ -5,6 +5,7 @@ import {
   sanitizeQuantityGrams,
   sanitizeMealType,
 } from './validation'
+import { getLocalDateString } from '../utils/date'
 
 const STORAGE_KEY = 'nutrition_entries'
 const PRODUCTS_STORAGE_KEY = 'products'
@@ -47,14 +48,14 @@ export const nutritionService = {
   async createEntry(
     product: { name: string; calories_per_100g: number; protein_per_100g: number; carbs_per_100g: number; fat_per_100g: number },
     quantityGrams: number,
-    date: string = new Date().toISOString().split('T')[0],
+    date: string = getLocalDateString(),
     mealType: MealType = 'breakfast'
   ): Promise<NutritionEntry> {
     const sanitizedProduct = sanitizeProductInput(product)
     if (!sanitizedProduct) throw new Error('Некорректные данные продукта')
     const qty = sanitizeQuantityGrams(quantityGrams)
     if (qty === null) throw new Error('Некорректное количество грамм')
-    const safeDate = isValidDate(date) ? date : new Date().toISOString().split('T')[0]
+    const safeDate = isValidDate(date) ? date : getLocalDateString()
     const safeMealType = sanitizeMealType(mealType)
 
     const existingProducts = getStoredProducts()
@@ -100,7 +101,7 @@ export const nutritionService = {
   },
 
   async getEntriesByDate(date: string): Promise<NutritionEntry[]> {
-    const safeDate = isValidDate(date) ? date : new Date().toISOString().split('T')[0]
+    const safeDate = isValidDate(date) ? date : getLocalDateString()
     const entries = getStoredEntries()
     const products = getStoredProducts()
 
