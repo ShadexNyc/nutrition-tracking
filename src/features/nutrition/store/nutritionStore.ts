@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { toUserMessage } from '@/shared/utils/errorHandler'
 import { DailyNutrition } from '../types'
 import { nutritionService } from '../services/nutritionService'
+import { getLocalDateString } from '../utils/date'
 
 interface NutritionState {
   dailyNutrition: DailyNutrition | null
@@ -12,7 +13,7 @@ interface NutritionState {
   refreshNutrition: () => Promise<void>
 }
 
-const getTodayDate = () => new Date().toISOString().split('T')[0]
+const getTodayDate = () => getLocalDateString()
 
 export const useNutritionStore = create<NutritionState>((set, get) => ({
   dailyNutrition: null,

@@ -1,15 +1,9 @@
 import { memo, useMemo, useCallback } from 'react'
 import { useNutritionStore } from '../store/nutritionStore'
+import { getLocalDateString } from '../utils/date'
 
 /** Дни недели с понедельника (Mon … Sun). */
 const DAY_LABELS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-function formatDateKey(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
 
 /** Дней от понедельника: Пн=0, Вт=1, …, Вс=6 (getDay: Вс=0, Пн=1, …). */
 function daysFromMonday(date: Date): number {
@@ -31,7 +25,7 @@ export const WeekCalendar = memo(function WeekCalendar() {
       d.setDate(start.getDate() + i)
       days.push({
         date: d,
-        dateKey: formatDateKey(d),
+        dateKey: getLocalDateString(d),
         label: DAY_LABELS_SHORT[i],
         num: d.getDate(),
         isToday:
@@ -56,7 +50,7 @@ export const WeekCalendar = memo(function WeekCalendar() {
         const isSelected = day.dateKey === selectedDate
         return (
           <button
-            key={day.date.toISOString()}
+            key={day.dateKey}
             type="button"
             onClick={() => handleDayClick(day.dateKey)}
             className={`flex flex-col items-center justify-center rounded-xl min-w-[40px] w-fit h-[60px] py-2 px-1 cursor-pointer ${
