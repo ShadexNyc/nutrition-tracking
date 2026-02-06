@@ -56,6 +56,13 @@
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  /* iOS: fixed-панель прижимается к низу; bottom через env компенсирует баг viewport-fit=cover */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .fixed-bottom-ios {
+      bottom: env(safe-area-inset-bottom, 0px);
+    }
+  }
   
   /* Предотвращение выделения текста на мобильных */
   .no-select {

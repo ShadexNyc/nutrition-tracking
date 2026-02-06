@@ -128,11 +128,13 @@ export function MainScreen() {
         </div>
       </div>
 
-      {/* Плавающая кнопка: скрыта при открытой шторке, иначе блюр панели даёт размытие поверх шторки */}
+      {/* Плавающая кнопка: на iOS bottom: env(safe-area-inset-bottom) компенсирует баг fixed + viewport-fit=cover */}
       {!isDrawerOpen && (
       <div
-        className="fixed bottom-0 left-0 right-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto"
-        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+        className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto fixed-bottom-ios"
+        style={{
+          paddingBottom: '1.5rem',
+        }}
       >
         <div
           className="absolute inset-0 rounded-t-[24px] backdrop-blur-md -z-10"
