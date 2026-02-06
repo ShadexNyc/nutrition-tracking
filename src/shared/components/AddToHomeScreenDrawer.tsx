@@ -103,7 +103,7 @@ export function AddToHomeScreenDrawer({ isOpen, onClose }: AddToHomeScreenDrawer
       />
 
       <div
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 p-6 pb-8 max-h-[90vh] overflow-y-auto safe-area-bottom drawer-native"
+        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 p-6 pb-8 max-h-[90vh] overflow-y-auto drawer-native"
         style={{
           transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)',

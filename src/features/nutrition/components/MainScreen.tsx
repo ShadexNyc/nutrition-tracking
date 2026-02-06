@@ -91,7 +91,7 @@ export function MainScreen() {
   }
 
   return (
-    <div className="min-h-[100svh] flex flex-col pt-0 safe-area-bottom bg-white w-full min-w-0 overflow-x-hidden">
+    <div className="min-h-[100svh] flex flex-col pt-0 bg-white w-full min-w-0 overflow-x-hidden">
       <div
         className="max-w-md mx-auto flex flex-1 flex-col min-h-0 w-full rounded-[24px] overflow-hidden gap-1"
         style={{ backgroundColor: '#E6E0E9' }}
@@ -128,14 +128,9 @@ export function MainScreen() {
         </div>
       </div>
 
-      {/* Плавающая кнопка: на iOS bottom: env(safe-area-inset-bottom) компенсирует баг fixed + viewport-fit=cover */}
+      {/* Плавающая кнопка: без safe area на iOS */}
       {!isDrawerOpen && (
-      <div
-        className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto fixed-bottom-ios"
-        style={{
-          paddingBottom: '1.5rem',
-        }}
-      >
+      <div className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 pb-6 max-w-md mx-auto">
         <div
           className="absolute inset-0 rounded-t-[24px] backdrop-blur-md -z-10"
           style={{
