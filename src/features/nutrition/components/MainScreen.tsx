@@ -127,9 +127,9 @@ export function MainScreen() {
           <WeekCalendar />
         </div>
 
-        {/* Нижняя секция: контент скроллится под плавающей кнопкой */}
+        {/* Нижняя секция: overscroll-behavior-contain чтобы при овердраге кнопка не пропадала */}
         <div className="rounded-t-[24px] bg-white flex flex-1 flex-col min-h-0">
-          <div className="flex flex-1 flex-col min-h-0 overflow-y-auto p-4 sm:p-6 pb-[120px]">
+          <div className="flex flex-1 flex-col min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 pb-[120px]">
             <DailyMealsList
               entries={dailyNutrition?.entries}
               onDeleteEntry={handleDeleteEntry}
