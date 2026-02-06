@@ -24,9 +24,10 @@
     min-width: 0;
   }
 
+  /* 100svh = видимая высота экрана с учётом системной навигации (Android/iOS) */
   #root {
     min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100svh;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -51,8 +52,9 @@
     top: 55%;
   }
 
+  /* Только safe area под системную навигацию; отступ секции задаётся у нижней секции (pb-[24px]) */
   .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   
   /* Предотвращение выделения текста на мобильных */

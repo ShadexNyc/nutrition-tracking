@@ -45,7 +45,7 @@ export const WeekCalendar = memo(function WeekCalendar() {
   )
 
   return (
-    <div className="flex gap-0 justify-between">
+    <div className="flex w-full gap-3">
       {days.map((day) => {
         const isSelected = day.dateKey === selectedDate
         return (
@@ -53,7 +53,7 @@ export const WeekCalendar = memo(function WeekCalendar() {
             key={day.dateKey}
             type="button"
             onClick={() => handleDayClick(day.dateKey)}
-            className={`flex flex-col items-center justify-center rounded-xl min-w-[40px] w-fit h-[60px] py-2 px-1 cursor-pointer ${
+            className={`flex flex-1 min-w-0 flex-col items-center justify-center rounded-xl h-[60px] py-2 px-1 cursor-pointer ${
               day.isToday ? 'bg-[#D3C1FF]' : 'bg-[rgba(244,241,244,1)]'
             }`}
             style={{

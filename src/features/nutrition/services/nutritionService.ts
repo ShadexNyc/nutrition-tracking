@@ -117,6 +117,12 @@ export const nutritionService = {
       )
   },
 
+  async deleteEntry(entryId: string): Promise<void> {
+    if (typeof entryId !== 'string' || !entryId.trim()) return
+    const entries = getStoredEntries().filter((e) => e.id !== entryId)
+    saveEntries(entries)
+  },
+
   async calculateDailyNutrition(date: string): Promise<DailyNutrition> {
     const entries = await this.getEntriesByDate(date)
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { useLockBodyScroll } from '@/shared/hooks/useLockBodyScroll'
+import { STORAGE_KEY } from '@/shared/utils/addToHomeScreen'
 import { NativeButton } from './NativeButton'
-
-const STORAGE_KEY = 'addToHomeScreenDismissed'
 
 /** Событие beforeinstallprompt (Chrome/Edge) для добавления на главный экран. */
 type BeforeInstallPromptEvent = Event & { prompt: () => Promise<{ outcome: string }> }
@@ -44,16 +44,13 @@ export function AddToHomeScreenDrawer({ isOpen, onClose }: AddToHomeScreenDrawer
   const [isVisible, setIsVisible] = useState(false)
   const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null)
 
+  useLockBodyScroll(isOpen)
+
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
       requestAnimationFrame(() => setIsVisible(true))
     } else {
       setIsVisible(false)
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
     }
   }, [isOpen])
 
@@ -159,13 +156,4 @@ export function AddToHomeScreenDrawer({ isOpen, onClose }: AddToHomeScreenDrawer
       </div>
     </>
   )
-}
-
-/** Проверяет, показывалась ли уже шторка «Добавить на экран». */
-export function wasAddToHomeScreenDismissed(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === 'true'
-  } catch {
-    return true
-  }
 }

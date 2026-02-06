@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from 'react'
 import { toUserMessage } from '@/shared/utils/errorHandler'
+import { useLockBodyScroll } from '@/shared/hooks/useLockBodyScroll'
 import { NutritionForm, NutritionFormData } from './NutritionForm'
 import { nutritionService } from '../services/nutritionService'
 import { useNutritionStore } from '../store/nutritionStore'
 
 interface NutritionDrawerProps {
   isOpen: boolean
-  onClose: () => void
+  /** Вызывается при закрытии; после успешного добавления передаётся id нового entry */
+  onClose: (addedEntryId?: string) => void
 }
 
 export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
@@ -21,19 +23,15 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
   /** Высота зоны сверху шторки (px), с которой можно начать свайп вниз */
   const SWIPE_TOP_ZONE_HEIGHT = 100
 
+  useLockBodyScroll(isOpen)
+
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
-      // Небольшая задержка для плавного появления
       requestAnimationFrame(() => {
         setIsVisible(true)
       })
     } else {
       setIsVisible(false)
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
     }
   }, [isOpen])
 
@@ -115,7 +113,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
   const handleSubmit = async (data: NutritionFormData) => {
     setIsSubmitting(true)
     try {
-      await nutritionService.createEntry(
+      const newEntry = await nutritionService.createEntry(
         {
           name: data.productName,
           calories_per_100g: data.caloriesPer100g,
@@ -127,9 +125,8 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
         selectedDate,
         data.mealType
       )
-
       await refreshNutrition()
-      onClose()
+      onClose(newEntry.id)
     } catch (error) {
       console.error('Error adding nutrition entry:', error)
       alert(toUserMessage(error))
@@ -142,7 +139,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
 
   return (
     <>
-      {/* Overlay с размытием фона */}
+      {/* Overlay с блюром фона; шторка (z-50) поверх — текст и форма чёткие */}
       <div
         data-drawer-overlay
         className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 backdrop-blur-sm ${

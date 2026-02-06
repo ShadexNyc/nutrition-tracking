@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { NativeButton } from '@/shared/components/NativeButton'
+import { AddCircleIcon } from '@/shared/components/icons/AddCircleIcon'
 import type { MealType } from '../types'
 
 const MEAL_OPTIONS: { value: MealType; label: string }[] = [
@@ -196,7 +197,12 @@ export function NutritionForm({ onSubmit, onCancel, isLoading }: NutritionFormPr
           className="w-full h-[54px] flex items-center justify-center gap-1 rounded-[16px] text-white"
           disabled={isLoading}
         >
-          {isLoading ? 'Saving...' : 'Add'}
+          {!isLoading && <AddCircleIcon className="w-5 h-5 shrink-0" variant="outline" />}
+          <span className="w-fit h-fit font-normal">
+            {isLoading
+              ? 'Saving...'
+              : `Add to ${MEAL_OPTIONS.find((o) => o.value === mealType)?.label ?? mealType}`}
+          </span>
         </NativeButton>
 
         <NativeButton
@@ -206,7 +212,7 @@ export function NutritionForm({ onSubmit, onCancel, isLoading }: NutritionFormPr
           className="w-full h-[54px] flex items-center justify-center rounded-[16px]"
           disabled={isLoading}
         >
-          Cancel
+          <span className="w-fit h-fit font-normal">Cancel</span>
         </NativeButton>
       </div>
     </form>

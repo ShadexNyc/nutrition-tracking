@@ -22,7 +22,8 @@ export const useNutritionStore = create<NutritionState>((set, get) => ({
   selectedDate: getTodayDate(),
 
   loadDailyNutrition: async (date?: string) => {
-    const targetDate = date || getTodayDate()
+    const today = getTodayDate()
+    const targetDate = date ?? today
     set({ isLoading: true, error: null, selectedDate: targetDate })
 
     try {

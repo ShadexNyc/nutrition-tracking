@@ -1,5 +1,7 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useNutritionStore } from '../store/nutritionStore'
+import { nutritionService } from '../services/nutritionService'
+import { getLocalDateString } from '../utils/date'
 import { TotalCalories } from './TotalCalories'
 import { MacronutrientCard } from './MacronutrientCard'
 import { AddNutritionButton } from './AddNutritionButton'
@@ -11,11 +13,13 @@ import { NativeButton } from '@/shared/components/NativeButton'
 import { PersonIcon } from '@/shared/components/icons/PersonIcon'
 
 export function MainScreen() {
-  const { dailyNutrition, isLoading, error, loadDailyNutrition } = useNutritionStore()
+  const { dailyNutrition, isLoading, error, loadDailyNutrition, refreshNutrition } = useNutritionStore()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [newlyAddedEntryId, setNewlyAddedEntryId] = useState<string | null>(null)
+  const clearNewlyAddedRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    loadDailyNutrition()
+    loadDailyNutrition(getLocalDateString())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -23,13 +27,32 @@ export function MainScreen() {
     setIsDrawerOpen(true)
   }, [])
 
-  const handleDrawerClose = useCallback(() => {
+  const handleDrawerClose = useCallback((addedEntryId?: string) => {
+    if (clearNewlyAddedRef.current) {
+      clearTimeout(clearNewlyAddedRef.current)
+      clearNewlyAddedRef.current = null
+    }
+    if (addedEntryId) {
+      setNewlyAddedEntryId(addedEntryId)
+      clearNewlyAddedRef.current = setTimeout(() => {
+        setNewlyAddedEntryId(null)
+        clearNewlyAddedRef.current = null
+      }, 1400)
+    }
     setIsDrawerOpen(false)
   }, [])
 
   const handleRetry = useCallback(() => {
     loadDailyNutrition()
   }, [loadDailyNutrition])
+
+  const handleDeleteEntry = useCallback(
+    async (entryId: string) => {
+      await nutritionService.deleteEntry(entryId)
+      await refreshNutrition()
+    },
+    [refreshNutrition]
+  )
 
   const nutrition = useMemo(
     () =>
@@ -46,7 +69,7 @@ export function MainScreen() {
 
   if (isLoading && !dailyNutrition) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-[100svh] flex items-center justify-center bg-white">
         <div className="text-lg" style={{ color: '#26222F' }}>Загрузка...</div>
       </div>
     )
@@ -54,7 +77,7 @@ export function MainScreen() {
 
   if (error && !dailyNutrition) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-white">
+      <div className="min-h-[100svh] flex flex-col items-center justify-center px-6 bg-white">
         <div className="text-lg text-red-500 mb-4 text-center">{error}</div>
         <NativeButton
           onClick={handleRetry}
@@ -68,7 +91,7 @@ export function MainScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col pt-0 pb-20 safe-area-bottom bg-white w-full min-w-0 overflow-x-hidden">
+    <div className="min-h-[100svh] flex flex-col pt-0 safe-area-bottom bg-white w-full min-w-0 overflow-x-hidden">
       <div
         className="max-w-md mx-auto flex flex-1 flex-col min-h-0 w-full rounded-[24px] overflow-hidden gap-1"
         style={{ backgroundColor: '#E6E0E9' }}
@@ -82,7 +105,7 @@ export function MainScreen() {
               style={{ backgroundColor: '#f4f1f4' }}
               aria-hidden
             >
-              <PersonIcon className="w-[44px] h-[30px] pt-0 -mb-[7px]" style={{ color: '#757575' }} />
+              <PersonIcon className="w-[44px] h-[30px] pt-0 -mb-[7px]" style={{ color: '#26222F' }} />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-x-0 gap-y-4 mt-6 mb-6 mx-0 items-stretch h-fit">
@@ -93,14 +116,36 @@ export function MainScreen() {
           <WeekCalendar />
         </div>
 
-        {/* Нижняя секция */}
-        <div className="rounded-t-[24px] bg-white flex flex-1 flex-col min-h-0 p-4 sm:p-6 pb-[24px] gap-6 overflow-y-auto">
-          <div className="flex flex-1 flex-col min-h-0">
-            <DailyMealsList entries={dailyNutrition?.entries} />
+        {/* Нижняя секция: контент скроллится под плавающей кнопкой */}
+        <div className="rounded-t-[24px] bg-white flex flex-1 flex-col min-h-0">
+          <div className="flex flex-1 flex-col min-h-0 overflow-y-auto p-4 sm:p-6 pb-[120px]">
+            <DailyMealsList
+              entries={dailyNutrition?.entries}
+              onDeleteEntry={handleDeleteEntry}
+              newlyAddedEntryId={newlyAddedEntryId}
+            />
           </div>
-          <AddNutritionButton onClick={handleAddNutrition} />
         </div>
       </div>
+
+      {/* Плавающая кнопка: скрыта при открытой шторке, иначе блюр панели даёт размытие поверх шторки */}
+      {!isDrawerOpen && (
+      <div
+        className="fixed bottom-0 left-0 right-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto"
+        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+      >
+        <div
+          className="absolute inset-0 rounded-t-[24px] backdrop-blur-md -z-10"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.45)',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, white 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, white 100%)',
+          }}
+          aria-hidden
+        />
+        <AddNutritionButton onClick={handleAddNutrition} />
+      </div>
+      )}
 
       <NutritionDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
     </div>

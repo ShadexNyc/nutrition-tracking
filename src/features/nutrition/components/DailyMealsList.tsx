@@ -1,4 +1,6 @@
+import { useState, useCallback } from 'react'
 import type { NutritionEntry, MealType } from '../types'
+import { SwipeableMealItem } from './SwipeableMealItem'
 
 const MEAL_SECTIONS: { type: MealType; title: string; emptyText: string }[] = [
   { type: 'breakfast', title: 'Завтрак', emptyText: 'Тут будет ваш рацион завтрака' },
@@ -25,32 +27,58 @@ function entryMacros(entry: NutritionEntry): { kcal: number; protein: number; ca
 
 export interface DailyMealsListProps {
   entries?: NutritionEntry[] | null
+  onDeleteEntry?: (entryId: string) => void
+  /** Id только что добавленного entry — для анимации появления */
+  newlyAddedEntryId?: string | null
 }
 
-function SectionEntries({ entries }: { entries: NutritionEntry[] }) {
+function SectionEntries({
+  entries,
+  onDeleteEntry,
+  newlyAddedEntryId,
+}: {
+  entries: NutritionEntry[]
+  onDeleteEntry?: (entryId: string) => void
+  newlyAddedEntryId?: string | null
+}) {
+  const [dragState, setDragState] = useState<{ id: string; x: number } | null>(null)
+
+  const handleDragStart = useCallback((id: string) => {
+    setDragState({ id, x: 0 })
+  }, [])
+
+  const handleDrag = useCallback((x: number) => {
+    setDragState((s) => (s ? { ...s, x } : null))
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    setDragState(null)
+  }, [])
+
+  const dragIndex = dragState ? entries.findIndex((e) => e.id === dragState.id) : -1
+
   return (
-    <ul className="space-y-3">
-      {entries.map((entry) => {
-        const macros = entryMacros(entry)
+    <ul className="space-y-0">
+      {entries.map((entry, index) => {
+        const isAdjacent =
+          dragIndex >= 0 &&
+          dragState != null &&
+          dragState.id !== entry.id &&
+          (index === dragIndex - 1 || index === dragIndex + 1)
+        const neighborDragX = dragState != null && isAdjacent ? dragState.x : 0
+
         return (
           <li key={entry.id}>
-            <div className="text-base font-normal text-black" style={{ color: '#26222F' }}>
-              {entry.product?.name ?? 'Продукт'}
-            </div>
-            <div
-              className="text-sm mt-0.5 flex flex-wrap gap-x-1 gap-y-0"
-              style={{ color: '#757575' }}
-            >
-              <span>{entry.quantity_grams}g</span>
-              <span>·</span>
-              <span>{macros.kcal} ккал</span>
-              <span>·</span>
-              <span>{macros.protein} бел</span>
-              <span>·</span>
-              <span>{macros.carbs} угл</span>
-              <span>·</span>
-              <span>{macros.fat} жир</span>
-            </div>
+            <SwipeableMealItem
+              entry={entry}
+              onDelete={(id) => onDeleteEntry?.(id)}
+              entryMacros={entryMacros}
+              onDragStart={() => handleDragStart(entry.id)}
+              onDrag={handleDrag}
+              onDragEnd={handleDragEnd}
+              neighborDragX={neighborDragX}
+              isNewlyAdded={entry.id === newlyAddedEntryId}
+            />
           </li>
         )
       })}
@@ -63,7 +91,7 @@ const EMPTY_STATE_LINES = [
   'in the morning, day, and evening',
 ]
 
-export function DailyMealsList({ entries }: DailyMealsListProps) {
+export function DailyMealsList({ entries, onDeleteEntry, newlyAddedEntryId }: DailyMealsListProps) {
   const hasAnyEntries = Boolean(entries?.length)
   const byMeal = (type: MealType) =>
     (entries ?? []).filter((e) => (e.meal_type ?? 'breakfast') === type)
@@ -104,7 +132,13 @@ export function DailyMealsList({ entries }: DailyMealsListProps) {
               )}
             </div>
             {sectionEntries.length > 0 ? (
-              <SectionEntries entries={sectionEntries} />
+              <div className="-mx-4 sm:-mx-6">
+                <SectionEntries
+                entries={sectionEntries}
+                onDeleteEntry={onDeleteEntry}
+                newlyAddedEntryId={newlyAddedEntryId}
+              />
+              </div>
             ) : (
               <p
                 className="text-sm"
