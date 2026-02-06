@@ -70,8 +70,8 @@ export function SwipeableMealItem({
       if (positionAtRelease < -THRESHOLD_PX) {
         animate(x, -400, {
           type: 'spring',
-          stiffness: 400,
-          damping: 35,
+          stiffness: 800,
+          damping: 45,
         }).then(() => onDelete(entry.id))
       } else {
         animate(x, 0, {
@@ -89,7 +89,7 @@ export function SwipeableMealItem({
   const neighborX = neighborDragX * NEIGHBOR_DRAG_FACTOR
 
   return (
-    <div style={{ transform: 'translateZ(0)' }}>
+    <div className="relative" style={{ transform: 'translateZ(0)' }}>
       <motion.div
         className="relative overflow-hidden"
         style={{ x: neighborX }}
@@ -104,16 +104,16 @@ export function SwipeableMealItem({
         className="absolute inset-0"
         style={{ backgroundColor }}
       />
-      {/* Иконка корзины справа */}
+      {/* Иконка корзины под карточкой: z-0, карточка z-10 — видна при смещении влево */}
       <div
-        className="absolute right-0 top-0 bottom-0 w-[80px] flex items-center justify-center pointer-events-none"
+        className="absolute right-0 top-0 bottom-0 w-[80px] flex items-center justify-center pointer-events-none z-0"
+        style={{ transform: 'translateZ(0)' }}
         aria-hidden
       >
         <motion.span style={{ color: iconColor }}>
           <TrashIcon className="w-6 h-6" color="currentColor" />
         </motion.span>
       </div>
-
       {/* Контент — свайпится влево, скругление справа 8px */}
       <motion.div
         className="relative bg-white rounded-r-[8px] pl-4 pr-4 sm:pl-6 sm:pr-6 py-3 z-10"
@@ -177,8 +177,8 @@ export function SwipeableMealItem({
           <span>·</span>
           <span>{macros.fat} жир</span>
         </motion.div>
+        </motion.div>
       </motion.div>
-    </motion.div>
     </div>
   )
 }
