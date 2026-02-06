@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNutritionStore } from '../store/nutritionStore'
 import { nutritionService } from '../services/nutritionService'
 import { getLocalDateString } from '../utils/date'
@@ -12,11 +13,21 @@ import { getMacronutrientData } from '../utils/calculations'
 import { NativeButton } from '@/shared/components/NativeButton'
 import { PersonIcon } from '@/shared/components/icons/PersonIcon'
 
+/** iOS: без safe area для нижней кнопки; Android: с safe area над системными кнопками */
+function isIOS(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  )
+}
+
 export function MainScreen() {
   const { dailyNutrition, isLoading, error, loadDailyNutrition, refreshNutrition } = useNutritionStore()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [newlyAddedEntryId, setNewlyAddedEntryId] = useState<string | null>(null)
   const clearNewlyAddedRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const ios = useMemo(() => isIOS(), [])
 
   useEffect(() => {
     loadDailyNutrition(getLocalDateString())
@@ -128,26 +139,29 @@ export function MainScreen() {
         </div>
       </div>
 
-      {/* Плавающая кнопка: над безопасной зоной на Android (системные кнопки) */}
-      {!isDrawerOpen && (
-      <div
-        className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto"
-        style={{
-          paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))',
-        }}
-      >
-        <div
-          className="absolute inset-0 rounded-t-[24px] backdrop-blur-md -z-10"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.45)',
-            maskImage: 'linear-gradient(to bottom, transparent 0%, white 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, white 100%)',
-          }}
-          aria-hidden
-        />
-        <AddNutritionButton onClick={handleAddNutrition} />
-      </div>
-      )}
+      {/* Плавающая кнопка в Portal — на тачах не пропадает при скролле (fixed относительно viewport) */}
+      {!isDrawerOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto"
+            style={{
+              paddingBottom: ios ? '1.5rem' : 'calc(1.5rem + env(safe-area-inset-bottom, 0px))',
+            }}
+          >
+            <div
+              className="absolute inset-0 rounded-t-[24px] backdrop-blur-md -z-10"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.45)',
+                maskImage: 'linear-gradient(to bottom, transparent 0%, white 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, white 100%)',
+              }}
+              aria-hidden
+            />
+            <AddNutritionButton onClick={handleAddNutrition} />
+          </div>,
+          document.body
+        )}
 
       <NutritionDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
     </div>
