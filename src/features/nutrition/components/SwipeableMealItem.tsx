@@ -64,9 +64,10 @@ export function SwipeableMealItem({
   )
 
   const handleDragEnd = useCallback(
-    (_e: PointerEvent | TouchEvent | MouseEvent, info: { offset: { x: number } }) => {
-      const offsetX = info.offset.x
-      if (offsetX < -THRESHOLD_PX) {
+    (_e: PointerEvent | TouchEvent | MouseEvent, _info: { offset: { x: number } }) => {
+      // Удаляем только после отпускания пальца: позиция в момент release
+      const positionAtRelease = x.get()
+      if (positionAtRelease < -THRESHOLD_PX) {
         animate(x, -400, {
           type: 'spring',
           stiffness: 400,

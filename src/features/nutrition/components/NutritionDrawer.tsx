@@ -151,7 +151,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 p-6 pb-6 max-h-[90vh] overflow-y-auto drawer-native"
+        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 p-6 pt-6 px-6 pb-0 max-h-[90vh] overflow-y-auto drawer-native"
         style={{
           transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
           transition: isDraggingRef.current

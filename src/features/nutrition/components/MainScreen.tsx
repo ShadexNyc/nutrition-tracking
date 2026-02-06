@@ -128,9 +128,14 @@ export function MainScreen() {
         </div>
       </div>
 
-      {/* Плавающая кнопка: без safe area на iOS */}
+      {/* Плавающая кнопка: над безопасной зоной на Android (системные кнопки) */}
       {!isDrawerOpen && (
-      <div className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 pb-6 max-w-md mx-auto">
+      <div
+        className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto"
+        style={{
+          paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
         <div
           className="absolute inset-0 rounded-t-[24px] backdrop-blur-md -z-10"
           style={{
