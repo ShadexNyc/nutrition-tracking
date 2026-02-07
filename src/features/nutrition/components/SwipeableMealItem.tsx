@@ -23,6 +23,10 @@ const BG_COLOR_DELETE = '#ED7A7A'
 /** Коэффициент «отрыва»: насколько соседние items тянутся за текущим (0.08 = 8%) */
 const NEIGHBOR_DRAG_FACTOR = 0.08
 
+/** Эластичность как в iOS: тяга за пределы границы с сопротивлением */
+const ELASTIC_OVERSCROLL_MAX = 50
+const ELASTIC_RESISTANCE = 0.35
+
 const FLASH_TEXT_COLOR = '#D3C1FF'
 const TEXT_COLOR_TITLE = '#26222F'
 const TEXT_COLOR_MACROS = '#757575'
@@ -38,12 +42,23 @@ interface SwipeableMealItemProps {
   neighborDragX?: number
   /** Только что добавленный элемент — мигание цвета шрифта после закрытия шторки */
   isNewlyAdded?: boolean
+  /** Первый item в категории — верхний отступ 7px (под заголовком 7px) */
+  isFirstInSection?: boolean
 }
 
 type GestureLock = null | 'horizontal' | 'vertical'
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
+}
+
+/** Сопротивление «резинки»: за границей -ACTION_WIDTH движение замедляется (как в iOS) */
+function elasticX(offsetX: number): number {
+  if (offsetX >= 0) return 0
+  if (offsetX > -ACTION_WIDTH) return offsetX
+  const overscroll = offsetX + ACTION_WIDTH
+  const elastic = -ACTION_WIDTH + overscroll * ELASTIC_RESISTANCE
+  return Math.max(-ACTION_WIDTH - ELASTIC_OVERSCROLL_MAX, elastic)
 }
 
 export function SwipeableMealItem({
@@ -55,9 +70,11 @@ export function SwipeableMealItem({
   onDragEnd,
   neighborDragX = 0,
   isNewlyAdded = false,
+  isFirstInSection = false,
 }: SwipeableMealItemProps) {
   const x = useMotionValue(0)
   const gestureLockRef = useRef<GestureLock>(null)
+  const isPointerDownRef = useRef(false)
   const startXRef = useRef(0)
   const startYRef = useRef(0)
   const lockStartXRef = useRef(0)
@@ -98,12 +115,14 @@ export function SwipeableMealItem({
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     if (gestureLockRef.current !== null) return
     gestureLockRef.current = null
+    isPointerDownRef.current = true
     startXRef.current = e.clientX
     startYRef.current = e.clientY
   }, [])
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
+      if (!isPointerDownRef.current) return
       const lock = gestureLockRef.current
       const deltaX = e.clientX - startXRef.current
       const deltaY = e.clientY - startYRef.current
@@ -126,7 +145,7 @@ export function SwipeableMealItem({
       if (gestureLockRef.current === 'horizontal') {
         e.preventDefault()
         const offsetX = e.clientX - lockStartXRef.current
-        x.set(clamp(offsetX, -ACTION_WIDTH, 0))
+        x.set(elasticX(offsetX))
       }
     },
     [onDragStart, x]
@@ -135,6 +154,7 @@ export function SwipeableMealItem({
   const onPointerCancel = useCallback((e: React.PointerEvent) => {
     ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
     gestureLockRef.current = null
+    isPointerDownRef.current = false
   }, [])
 
   const onPointerUp = useCallback(
@@ -145,6 +165,7 @@ export function SwipeableMealItem({
         finishSwipeGesture()
       }
       gestureLockRef.current = null
+      isPointerDownRef.current = false
     },
     [finishSwipeGesture]
   )
@@ -178,9 +199,9 @@ export function SwipeableMealItem({
           <TrashIcon className="w-6 h-6" color="currentColor" />
         </motion.span>
       </div>
-      {/* Контент — свайпится влево, скругление справа 8px */}
+      {/* Контент — свайпится влево, скругление справа 12px */}
       <motion.div
-        className="relative bg-white rounded-r-[8px] pl-4 pr-4 sm:pl-6 sm:pr-6 py-3 z-10 touch-pan-y"
+        className={`relative bg-white rounded-r-[12px] pl-4 pr-4 sm:pl-6 sm:pr-6 py-[5px] z-10 touch-pan-y ${isFirstInSection ? 'pt-[7px]' : ''}`}
         style={{ x }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

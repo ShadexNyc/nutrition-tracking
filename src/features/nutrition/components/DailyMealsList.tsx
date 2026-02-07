@@ -78,6 +78,7 @@ function SectionEntries({
               onDragEnd={handleDragEnd}
               neighborDragX={neighborDragX}
               isNewlyAdded={entry.id === newlyAddedEntryId}
+              isFirstInSection={index === 0}
             />
           </li>
         )
@@ -115,7 +116,7 @@ export function DailyMealsList({ entries, onDeleteEntry, newlyAddedEntryId }: Da
         const totalCal = sectionEntries.reduce((sum, e) => sum + entryCalories(e), 0)
         return (
           <section key={type}>
-            <div className="flex items-baseline justify-between gap-2 mb-2">
+            <div className="flex items-center justify-between gap-2">
               <h2
                 className="text-2xl font-bold"
                 style={{ color: '#26222F' }}
@@ -141,7 +142,7 @@ export function DailyMealsList({ entries, onDeleteEntry, newlyAddedEntryId }: Da
               </div>
             ) : (
               <p
-                className="text-sm"
+                className="text-sm mt-[8px]"
                 style={{ color: '#757575' }}
               >
                 {emptyText}
