@@ -1,11 +1,15 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { motion, useMotionValue, useTransform, animate, useMotionValueEvent } from 'motion/react'
 import { TrashIcon } from '@/shared/components/icons/TrashIcon'
 import type { NutritionEntry } from '../types'
 
 const ACTION_WIDTH = 80
-const DELETE_THRESHOLD = 0.4 // 40% — отпустить палец для удаления
+const DELETE_THRESHOLD = 0.65 // 65% — осознанный свайп для удаления (не от лёгкого прикосновения)
 const RED_BG_THRESHOLD = 0.9 // 90% — полный красный фон
+/** Порог в px: движение в одну сторону должно быть больше, чтобы считать жест «свайпом» или «скроллом» */
+const DIRECTION_THRESHOLD_PX = 14
+/** Горизонталь побеждает, если horizontal >= ratio * vertical */
+const HORIZONTAL_VS_VERTICAL_RATIO = 1.5
 const FADE_START = 0.8 // 80% — начало фейда
 const THRESHOLD_PX = ACTION_WIDTH * DELETE_THRESHOLD
 const RED_BG_PX = ACTION_WIDTH * RED_BG_THRESHOLD
@@ -36,6 +40,12 @@ interface SwipeableMealItemProps {
   isNewlyAdded?: boolean
 }
 
+type GestureLock = null | 'horizontal' | 'vertical'
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
+
 export function SwipeableMealItem({
   entry,
   onDelete,
@@ -47,6 +57,10 @@ export function SwipeableMealItem({
   isNewlyAdded = false,
 }: SwipeableMealItemProps) {
   const x = useMotionValue(0)
+  const gestureLockRef = useRef<GestureLock>(null)
+  const startXRef = useRef(0)
+  const startYRef = useRef(0)
+  const lockStartXRef = useRef(0)
 
   useMotionValueEvent(x, 'change', (latest) => {
     onDrag?.(latest)
@@ -63,26 +77,76 @@ export function SwipeableMealItem({
     ['#26222F', '#26222F', '#26222F', '#ffffff']
   )
 
-  const handleDragEnd = useCallback(
-    (_e: PointerEvent | TouchEvent | MouseEvent, _info: { offset: { x: number } }) => {
-      // Удаляем только после отпускания пальца: позиция в момент release
-      const positionAtRelease = x.get()
-      if (positionAtRelease < -THRESHOLD_PX) {
-        animate(x, -400, {
-          type: 'spring',
-          stiffness: 800,
-          damping: 45,
-        }).then(() => onDelete(entry.id))
-      } else {
-        animate(x, 0, {
-          type: 'spring',
-          stiffness: 500,
-          damping: 40,
-        })
+  const finishSwipeGesture = useCallback(() => {
+    const positionAtRelease = x.get()
+    if (positionAtRelease < -THRESHOLD_PX) {
+      animate(x, -400, {
+        type: 'spring',
+        stiffness: 800,
+        damping: 45,
+      }).then(() => onDelete(entry.id))
+    } else {
+      animate(x, 0, {
+        type: 'spring',
+        stiffness: 500,
+        damping: 40,
+      })
+    }
+    onDragEnd?.()
+  }, [entry.id, onDelete, onDragEnd, x])
+
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    if (gestureLockRef.current !== null) return
+    gestureLockRef.current = null
+    startXRef.current = e.clientX
+    startYRef.current = e.clientY
+  }, [])
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      const lock = gestureLockRef.current
+      const deltaX = e.clientX - startXRef.current
+      const deltaY = e.clientY - startYRef.current
+
+      if (lock === null) {
+        const absX = Math.abs(deltaX)
+        const absY = Math.abs(deltaY)
+        if (absX >= DIRECTION_THRESHOLD_PX && absX >= HORIZONTAL_VS_VERTICAL_RATIO * absY) {
+          gestureLockRef.current = 'horizontal'
+          lockStartXRef.current = e.clientX
+          e.preventDefault()
+          ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+          onDragStart?.()
+        } else if (absY >= DIRECTION_THRESHOLD_PX && absY >= HORIZONTAL_VS_VERTICAL_RATIO * absX) {
+          gestureLockRef.current = 'vertical'
+          ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
+        }
       }
-      onDragEnd?.()
+
+      if (gestureLockRef.current === 'horizontal') {
+        e.preventDefault()
+        const offsetX = e.clientX - lockStartXRef.current
+        x.set(clamp(-offsetX, -ACTION_WIDTH, 0))
+      }
     },
-    [entry.id, onDelete, onDragEnd, x]
+    [onDragStart, x]
+  )
+
+  const onPointerCancel = useCallback((e: React.PointerEvent) => {
+    ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
+    gestureLockRef.current = null
+  }, [])
+
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      const lock = gestureLockRef.current
+      ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
+      if (lock === 'horizontal') {
+        finishSwipeGesture()
+      }
+      gestureLockRef.current = null
+    },
+    [finishSwipeGesture]
   )
 
   const macros = entryMacros(entry)
@@ -116,14 +180,12 @@ export function SwipeableMealItem({
       </div>
       {/* Контент — свайпится влево, скругление справа 8px */}
       <motion.div
-        className="relative bg-white rounded-r-[8px] pl-4 pr-4 sm:pl-6 sm:pr-6 py-3 z-10"
+        className="relative bg-white rounded-r-[8px] pl-4 pr-4 sm:pl-6 sm:pr-6 py-3 z-10 touch-pan-y"
         style={{ x }}
-        drag="x"
-        dragConstraints={{ left: -ACTION_WIDTH, right: 0 }}
-        dragElastic={{ left: 0.1, right: 0 }}
-        dragMomentum={false}
-        onDragStart={onDragStart}
-        onDragEnd={handleDragEnd}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
         transition={{
           type: 'spring',
           stiffness: 500,

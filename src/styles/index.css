@@ -69,10 +69,24 @@
     overscroll-behavior: contain;
   }
 
-  /* Нижняя секция: овердраг не передаётся на body — кнопка не пропадает при овердраге */
+  /* Нижняя секция: баунсинг только внутри контейнера, овердраг не передаётся на body — кнопка не смещается */
   .overscroll-contain {
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* На тачах: явно включаем прокрутку и баунсинг внутри контейнера, viewport не двигается */
+  @media (hover: none) and (pointer: coarse) {
+    .overscroll-contain.overflow-y-auto {
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+  }
+
+  /* Фиксированный блок кнопки: отдельный композитный слой, не смещается при скролле/баунсе */
+  .fixed-cta-layer {
+    transform: translateZ(0);
+    contain: layout style paint;
   }
 
   /* Область заголовка drawer для свайпа */

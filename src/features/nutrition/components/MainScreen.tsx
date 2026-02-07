@@ -139,12 +139,12 @@ export function MainScreen() {
         </div>
       </div>
 
-      {/* Плавающая кнопка в Portal — на тачах не пропадает при скролле (fixed относительно viewport) */}
+      {/* Плавающая кнопка в Portal: fixed + слой — не смещается при баунсе и скролле на тачах */}
       {!isDrawerOpen &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto"
+            className="fixed left-0 right-0 bottom-0 z-30 pt-4 px-4 sm:pt-6 sm:px-6 max-w-md mx-auto fixed-cta-layer"
             style={{
               paddingBottom: ios ? '1.5rem' : 'calc(1.5rem + env(safe-area-inset-bottom, 0px))',
             }}
