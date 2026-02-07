@@ -126,7 +126,7 @@ export function SwipeableMealItem({
       if (gestureLockRef.current === 'horizontal') {
         e.preventDefault()
         const offsetX = e.clientX - lockStartXRef.current
-        x.set(clamp(-offsetX, -ACTION_WIDTH, 0))
+        x.set(clamp(offsetX, -ACTION_WIDTH, 0))
       }
     },
     [onDragStart, x]
