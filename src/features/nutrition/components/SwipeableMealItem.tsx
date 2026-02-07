@@ -48,10 +48,6 @@ interface SwipeableMealItemProps {
 
 type GestureLock = null | 'horizontal' | 'vertical'
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
-}
-
 /** Сопротивление «резинки»: за границей -ACTION_WIDTH движение замедляется (как в iOS) */
 function elasticX(offsetX: number): number {
   if (offsetX >= 0) return 0
