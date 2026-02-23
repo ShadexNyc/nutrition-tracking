@@ -5,7 +5,6 @@ import type { Product } from '../types'
 import { NativeButton } from '@/shared/components/NativeButton'
 import { BarcodeScanIcon } from '@/shared/components/icons/BarcodeScanIcon'
 
-const DRAWER_TOP_OFFSET_PERCENT = 30
 const SWIPE_TOP_ZONE_HEIGHT = 100
 
 interface ProductListDrawerProps {
@@ -149,10 +148,9 @@ export function ProductListDrawer({
 
       <div
         ref={drawerRef}
-        className="fixed left-0 right-0 z-50 bg-white rounded-t-3xl overflow-hidden drawer-native flex flex-col"
+        className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl overflow-hidden drawer-native flex flex-col max-h-[90vh]"
         style={{
-          top: `${DRAWER_TOP_OFFSET_PERCENT}vh`,
-          height: `${100 - DRAWER_TOP_OFFSET_PERCENT}vh`,
+          height: '90vh',
           transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
           transition: isDraggingRef.current
             ? 'none'
@@ -178,7 +176,7 @@ export function ProductListDrawer({
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4 min-h-0">
           <p className="text-sm font-medium text-gray-600 mb-2">
             {showSearch ? 'Search results' : 'Recent added'}
           </p>
@@ -208,7 +206,7 @@ export function ProductListDrawer({
           )}
         </div>
 
-        <div className="flex-shrink-0 p-4 pt-2 pb-6">
+        <div className="flex-shrink-0 p-4 pt-2 pb-6 safe-area-bottom">
           <NativeButton
             type="button"
             onClick={onScanProduct}

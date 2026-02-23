@@ -98,6 +98,11 @@
   .drawer-header:active {
     cursor: grabbing;
   }
+
+  /* Нижний отступ под safe area (вырез, жесты) на телефонах */
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Плавная прокрутка */

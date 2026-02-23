@@ -108,8 +108,8 @@ export function ScanProductScreen() {
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black">
-      <div className="relative flex-1 min-h-0">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black min-h-[100dvh]">
+      <div className="relative flex-1 min-h-0 flex flex-col">
         <div
           id={SCANNER_ELEMENT_ID}
           className="absolute inset-0 w-full h-full [&>div]:!w-full [&>div]:!h-full [& video]:!object-cover"
@@ -122,12 +122,12 @@ export function ScanProductScreen() {
         )}
 
         {unrecognized && (
-          <div className="absolute top-4 left-4 right-4 rounded-2xl bg-black/90 px-4 py-3 text-center">
+          <div className="absolute top-4 left-4 right-4 rounded-2xl bg-black/90 px-4 py-3 text-center z-10">
             <p className="text-white font-medium">Не опознали продукт</p>
           </div>
         )}
 
-        <div className="absolute top-4 left-4">
+        <div className="absolute top-4 left-4 z-10">
           <button
             type="button"
             onClick={() => navigate(ROUTES.main, { replace: true })}
@@ -138,7 +138,7 @@ export function ScanProductScreen() {
         </div>
       </div>
 
-      <div className="flex-shrink-0 p-4 pb-8 bg-black">
+      <div className="flex-shrink-0 p-4 safe-area-bottom bg-black">
         <NativeButton
           type="button"
           onClick={handleAddProduct}
