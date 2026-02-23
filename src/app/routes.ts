@@ -2,4 +2,5 @@
 export const ROUTES = {
   splash: '/',
   main: '/main',
+  scan: '/scan',
 } as const

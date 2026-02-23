@@ -5,6 +5,8 @@ export interface Product {
   protein_per_100g: number
   carbs_per_100g: number
   fat_per_100g: number
+  /** Optional barcode (EAN/UPC) for lookup when scanning */
+  barcode?: string
   created_at?: string
 }
 

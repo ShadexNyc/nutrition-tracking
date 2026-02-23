@@ -4,14 +4,17 @@ import { useLockBodyScroll } from '@/shared/hooks/useLockBodyScroll'
 import { NutritionForm, NutritionFormData } from './NutritionForm'
 import { nutritionService } from '../services/nutritionService'
 import { useNutritionStore } from '../store/nutritionStore'
+import type { Product } from '../types'
 
 interface NutritionDrawerProps {
   isOpen: boolean
   /** Вызывается при закрытии; после успешного добавления передаётся id нового entry */
   onClose: (addedEntryId?: string) => void
+  /** Предзаполнить форму данными продукта (из списка или скана) */
+  initialProduct?: Product | null
 }
 
-export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
+export function NutritionDrawer({ isOpen, onClose, initialProduct }: NutritionDrawerProps) {
   const { refreshNutrition, selectedDate } = useNutritionStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
@@ -120,6 +123,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
           protein_per_100g: data.proteinPer100g,
           carbs_per_100g: data.carbsPer100g,
           fat_per_100g: data.fatPer100g,
+          barcode: initialProduct?.barcode,
         },
         data.quantityGrams,
         selectedDate,
@@ -168,7 +172,9 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
           </div>
 
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-black">Add nutrition</h2>
+            <h2 className="text-xl font-semibold text-black">
+              {initialProduct ? 'Check the product data' : 'Add nutrition'}
+            </h2>
           </div>
         </div>
 
@@ -176,6 +182,7 @@ export function NutritionDrawer({ isOpen, onClose }: NutritionDrawerProps) {
           onSubmit={handleSubmit}
           onCancel={onClose}
           isLoading={isSubmitting}
+          initialProduct={initialProduct}
         />
       </div>
     </>

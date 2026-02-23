@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { ROUTES } from '@/app/routes'
 import { useNutritionStore } from '../store/nutritionStore'
 import { nutritionService } from '../services/nutritionService'
 import { getLocalDateString } from '../utils/date'
@@ -7,11 +9,13 @@ import { TotalCalories } from './TotalCalories'
 import { MacronutrientCard } from './MacronutrientCard'
 import { AddNutritionButton } from './AddNutritionButton'
 import { WeekCalendar } from './WeekCalendar'
+import { ProductListDrawer } from './ProductListDrawer'
 import { NutritionDrawer } from './NutritionDrawer'
 import { DailyMealsList } from './DailyMealsList'
 import { getMacronutrientData } from '../utils/calculations'
 import { NativeButton } from '@/shared/components/NativeButton'
 import { PersonIcon } from '@/shared/components/icons/PersonIcon'
+import type { Product } from '../types'
 
 /** iOS: без safe area для нижней кнопки; Android: с safe area над системными кнопками */
 function isIOS(): boolean {
@@ -23,8 +27,12 @@ function isIOS(): boolean {
 }
 
 export function MainScreen() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const { dailyNutrition, isLoading, error, loadDailyNutrition, refreshNutrition } = useNutritionStore()
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isProductListDrawerOpen, setIsProductListDrawerOpen] = useState(false)
+  const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false)
+  const [formInitialProduct, setFormInitialProduct] = useState<Product | null>(null)
   const [newlyAddedEntryId, setNewlyAddedEntryId] = useState<string | null>(null)
   const clearNewlyAddedRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const ios = useMemo(() => isIOS(), [])
@@ -34,11 +42,35 @@ export function MainScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    const state = location.state as { openAddFormWithProduct?: Product | null } | null
+    if (state && 'openAddFormWithProduct' in state) {
+      setFormInitialProduct(state.openAddFormWithProduct ?? null)
+      setIsFormDrawerOpen(true)
+      navigate(ROUTES.main, { replace: true, state: {} })
+    }
+  }, [location.state, navigate])
+
   const handleAddNutrition = useCallback(() => {
-    setIsDrawerOpen(true)
+    setIsProductListDrawerOpen(true)
   }, [])
 
-  const handleDrawerClose = useCallback((addedEntryId?: string) => {
+  const handleCloseProductListDrawer = useCallback(() => {
+    setIsProductListDrawerOpen(false)
+  }, [])
+
+  const handleSelectProduct = useCallback((product: Product) => {
+    setIsProductListDrawerOpen(false)
+    setFormInitialProduct(product)
+    setIsFormDrawerOpen(true)
+  }, [])
+
+  const handleScanProduct = useCallback(() => {
+    setIsProductListDrawerOpen(false)
+    navigate(ROUTES.scan)
+  }, [navigate])
+
+  const handleFormDrawerClose = useCallback((addedEntryId?: string) => {
     if (clearNewlyAddedRef.current) {
       clearTimeout(clearNewlyAddedRef.current)
       clearNewlyAddedRef.current = null
@@ -50,7 +82,8 @@ export function MainScreen() {
         clearNewlyAddedRef.current = null
       }, 1400)
     }
-    setIsDrawerOpen(false)
+    setIsFormDrawerOpen(false)
+    setFormInitialProduct(null)
   }, [])
 
   const handleRetry = useCallback(() => {
@@ -140,7 +173,8 @@ export function MainScreen() {
       </div>
 
       {/* Плавающая кнопка в Portal: fixed + слой — не смещается при баунсе и скролле на тачах */}
-      {!isDrawerOpen &&
+      {!isProductListDrawerOpen &&
+        !isFormDrawerOpen &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
@@ -163,7 +197,18 @@ export function MainScreen() {
           document.body
         )}
 
-      <NutritionDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
+      <ProductListDrawer
+        isOpen={isProductListDrawerOpen}
+        onClose={handleCloseProductListDrawer}
+        onSelectProduct={handleSelectProduct}
+        onScanProduct={handleScanProduct}
+      />
+
+      <NutritionDrawer
+        isOpen={isFormDrawerOpen}
+        onClose={handleFormDrawerClose}
+        initialProduct={formInitialProduct}
+      />
     </div>
   )
 }

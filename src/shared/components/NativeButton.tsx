@@ -12,7 +12,7 @@ interface NativeButtonProps
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-[#A4E973] text-black',
-  secondary: 'bg-gray-200 text-black',
+  secondary: 'bg-[#F2EFF2] text-black',
   close: 'text-gray-500 hover:text-gray-700',
   cta: 'bg-[#26222F] text-white',
 }
